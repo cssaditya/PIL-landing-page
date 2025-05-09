@@ -33,7 +33,7 @@ function initializeThreeJS() {
 
     // Scene setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = null; // Let CSS show through
 
     // Camera setup
     const camera = new THREE.PerspectiveCamera(
@@ -45,14 +45,11 @@ function initializeThreeJS() {
     camera.position.z = 5;
 
     // Renderer setup
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setClearColor(0x000000, 0); // Transparent background
     renderer.setSize(canvasWidth, canvasHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
-
-    // Create particle system
-    const particleSystem = createParticleSystem();
-    scene.add(particleSystem);
 
     // Create main geometric mesh
     const mainMesh = createMainMesh();
@@ -71,44 +68,10 @@ function initializeThreeJS() {
 
     // Start animation loop
     const clock = new THREE.Clock();
-    animate(clock, scene, camera, renderer, particleSystem, mainMesh, mouseX, mouseY);
+    animate(clock, scene, camera, renderer, mainMesh, mouseX, mouseY);
 
     // Handle window resizing
     setupResizeHandler(container, camera, renderer);
-}
-
-// Create particle system
-function createParticleSystem() {
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particleCount = 1000;
-
-    const posArray = new Float32Array(particleCount * 3);
-    const colorArray = new Float32Array(particleCount * 3);
-
-    for (let i = 0; i < particleCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * 10;
-        colorArray[i] = Math.random() * 0.5 + 0.5; // Reddish colors
-    }
-
-    particlesGeometry.setAttribute(
-        'position',
-        new THREE.BufferAttribute(posArray, 3)
-    );
-
-    particlesGeometry.setAttribute(
-        'color',
-        new THREE.BufferAttribute(colorArray, 3)
-    );
-
-    const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.02,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending
-    });
-
-    return new THREE.Points(particlesGeometry, particlesMaterial);
 }
 
 // Create main geometric mesh
@@ -266,8 +229,8 @@ function updateBoxTransformation() {
 }
 
 // Animation loop
-function animate(clock, scene, camera, renderer, particleSystem, mainMesh, mouseX, mouseY) {
-    requestAnimationFrame(() => animate(clock, scene, camera, renderer, particleSystem, mainMesh, mouseX, mouseY));
+function animate(clock, scene, camera, renderer, mainMesh, mouseX, mouseY) {
+    requestAnimationFrame(() => animate(clock, scene, camera, renderer, mainMesh, mouseX, mouseY));
 
     const elapsedTime = clock.getElapsedTime();
 
@@ -284,34 +247,7 @@ function animate(clock, scene, camera, renderer, particleSystem, mainMesh, mouse
     camera.position.y += (mouseY * 1.5 - camera.position.y) * 0.03;
     camera.lookAt(scene.position);
 
-    // Animate particles
-    animateParticles(particleSystem, elapsedTime);
-
     renderer.render(scene, camera);
-}
-
-// Animate particles
-function animateParticles(particleSystem, elapsedTime) {
-    const positions = particleSystem.geometry.attributes.position.array;
-    const particleCount = positions.length / 3;
-
-    for (let i = 0; i < particleCount; i++) {
-        const i3 = i * 3;
-        
-        // Add subtle movement
-        positions[i3] += Math.sin(elapsedTime + i) * 0.001;
-        positions[i3 + 1] += Math.cos(elapsedTime + i) * 0.001;
-        positions[i3 + 2] += Math.sin(elapsedTime + i) * 0.001;
-        
-        // Reset particles that go too far
-        if (positions[i3] > 5) positions[i3] = -5;
-        if (positions[i3] < -5) positions[i3] = 5;
-        if (positions[i3 + 1] > 5) positions[i3 + 1] = -5;
-        if (positions[i3 + 1] < -5) positions[i3 + 1] = 5;
-        if (positions[i3 + 2] > 5) positions[i3 + 2] = -5;
-        if (positions[i3 + 2] < -5) positions[i3 + 2] = 5;
-    }
-    particleSystem.geometry.attributes.position.needsUpdate = true;
 }
 
 // Handle window resizing
