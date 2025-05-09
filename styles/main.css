@@ -13,9 +13,10 @@ html, body {
 body {
     font-family: 'Arial', sans-serif;
     color: white;
-    background: radial-gradient(ellipse at top, #b80000 0%, #1a0000 60%, #000 100%);
+    background: radial-gradient(ellipse at 50% 0%, #b80000 0%, #1a0000 60%, #000 100%);
     overflow-x: hidden; /* Allow vertical scrolling only */
     position: relative;
+   
 }
 
 body::after {
@@ -28,8 +29,14 @@ body::after {
     pointer-events: none;
     z-index: 0;
     opacity: 0.25;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="200" height="200" filter="url(%23noise)"/></svg>');
-    background-repeat: repeat;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="200" height="200" filter="url(%23noise)"/></svg>'); 
+    background-repeat: repeat; 
+    animation: noise-move 2s linear infinite;
+}
+
+@keyframes noise-move {
+    0% { background-position: 0 0; }
+    100% { background-position: 100px 100px; }
 }
 
 /* Canvas container for Three.js */

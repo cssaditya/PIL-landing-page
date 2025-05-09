@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="styles/sections.css">
 </head>
 <body>
+    <canvas id="smoke-bg" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:0;"></canvas>
     <!-- 3D Canvas Container -->
     <div id="canvas-container"></div>
     
@@ -60,6 +61,7 @@
 
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
     
     <!-- Custom JavaScript -->

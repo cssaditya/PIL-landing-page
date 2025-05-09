@@ -14,6 +14,7 @@ let scrollProgress = 0;
 let targetRotationY = 0;
 let targetRotationX = 0;
 let targetZoom = 5;
+let mainMesh; // Make mainMesh global
 
 // Handle UI animations
 function initializeUIAnimations() {
@@ -52,7 +53,7 @@ function initializeThreeJS() {
     container.appendChild(renderer.domElement);
 
     // Create main geometric mesh
-    const mainMesh = createMainMesh();
+    mainMesh = createMainMesh();
     scene.add(mainMesh);
 
     // Add lighting

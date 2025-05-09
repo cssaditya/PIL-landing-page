@@ -318,7 +318,7 @@ class SceneSetup {
     setupUI() {
         // Show loading text
         const loading = document.querySelector('.loading');
-        loading.classList.add('visible');
+        if (loading) loading.classList.add('visible');
 
         // Animate letters
         const letters = document.querySelectorAll('.letter');
@@ -333,45 +333,55 @@ class SceneSetup {
         const tl = gsap.timeline({ delay: 1 });
 
         // Fade out loading
-        tl.to(loading, {
-            opacity: 0,
-            duration: 0.5,
-            onComplete: () => loading.style.display = 'none'
-        });
+        if (loading) {
+            tl.to(loading, {
+                opacity: 0,
+                duration: 0.5,
+                onComplete: () => loading.style.display = 'none'
+            });
+        }
 
         // Animate letters
-        letters.forEach((letter, index) => {
-            tl.to(letter, {
+        if (letters && letters.length > 0) {
+            letters.forEach((letter, index) => {
+                tl.to(letter, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power3.out'
+                }, 0.2 + index * 0.1);
+            });
+        }
+
+        // Animate subtitle
+        if (subtitle) {
+            tl.to(subtitle, {
                 opacity: 1,
                 y: 0,
                 duration: 0.8,
                 ease: 'power3.out'
-            }, 0.2 + index * 0.1);
-        });
-
-        // Animate subtitle
-        tl.to(subtitle, {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out'
-        }, 0.5);
+            }, 0.5);
+        }
 
         // Animate info section
-        tl.to(info, {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out'
-        }, 0.8);
+        if (info) {
+            tl.to(info, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: 'power3.out'
+            }, 0.8);
+        }
 
         // Animate CTA button
-        tl.to(cta, {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out'
-        }, 1);
+        if (cta) {
+            tl.to(cta, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: 'power3.out'
+            }, 1);
+        }
 
         // Camera movement
         tl.to(camera.position, {
@@ -401,4 +411,146 @@ class SceneSetup {
 }
 
 // Initialize scene
-new SceneSetup(); 
+new SceneSetup();
+
+// --- Perlin Noise Implementation ---
+const Perlin = (() => {
+    let perm = new Uint8Array(512);
+    let grad3 = [
+        [1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],
+        [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],
+        [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]
+    ];
+    function seed(s) {
+        if(s > 0 && s < 1) s *= 65536;
+        s = Math.floor(s);
+        if(s < 256) s |= s << 8;
+        for(let i = 0; i < 256; i++) {
+            let v;
+            if (i & 1) {
+                v = perm[i] ^ (s & 255);
+            } else {
+                v = perm[i] ^ ((s>>8) & 255);
+            }
+            perm[i] = perm[i + 256] = v;
+        }
+    }
+    function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+    function lerp(a, b, t) { return (1-t)*a + t*b; }
+    function grad(hash, x, y, z) {
+        let h = hash & 15;
+        let u = h<8 ? x : y;
+        let v = h<4 ? y : h===12||h===14 ? x : z;
+        return ((h&1)===0 ? u : -u) + ((h&2)===0 ? v : -v);
+    }
+    function noise(x, y, z) {
+        let X = Math.floor(x) & 255;
+        let Y = Math.floor(y) & 255;
+        let Z = Math.floor(z) & 255;
+        x -= Math.floor(x);
+        y -= Math.floor(y);
+        z -= Math.floor(z);
+        let u = fade(x);
+        let v = fade(y);
+        let w = fade(z);
+        let A = perm[X]+Y, AA = perm[A]+Z, AB = perm[A+1]+Z;
+        let B = perm[X+1]+Y, BA = perm[B]+Z, BB = perm[B+1]+Z;
+        return lerp(
+            lerp(
+                lerp(grad(perm[AA], x, y, z), grad(perm[BA], x-1, y, z), u),
+                lerp(grad(perm[AB], x, y-1, z), grad(perm[BB], x-1, y-1, z), u),
+                v
+            ),
+            lerp(
+                lerp(grad(perm[AA+1], x, y, z-1), grad(perm[BA+1], x-1, y, z-1), u),
+                lerp(grad(perm[AB+1], x, y-1, z-1), grad(perm[BB+1], x-1, y-1, z-1), u),
+                v
+            ),
+            w
+        );
+    }
+    // Seed with a random value for variety
+    for(let i=0; i<256; i++) perm[i] = i;
+    for(let i=0; i<256; i++) {
+        let j = Math.floor(Math.random() * 256);
+        let tmp = perm[i];
+        perm[i] = perm[j];
+        perm[j] = tmp;
+        perm[i+256] = perm[i];
+    }
+    return { noise };
+})();
+
+function animateSmoke() {
+    const canvas = document.getElementById('smoke-bg');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    canvas.width = w;
+    canvas.height = h;
+
+    // Render at lower resolution for softness
+    const lw = Math.floor(w / 3);
+    const lh = Math.floor(h / 3);
+    const tempCanvas1 = document.createElement('canvas');
+    tempCanvas1.width = lw;
+    tempCanvas1.height = lh;
+    const tempCtx1 = tempCanvas1.getContext('2d');
+    const tempCanvas2 = document.createElement('canvas');
+    tempCanvas2.width = lw;
+    tempCanvas2.height = lh;
+    const tempCtx2 = tempCanvas2.getContext('2d');
+
+    function drawSmoke(t) {
+        // Layer 1
+        const imageData1 = tempCtx1.createImageData(lw, lh);
+        for (let y = 0; y < lh; y++) {
+            for (let x = 0; x < lw; x++) {
+                let nx = x / lw, ny = y / lh;
+                let value = Perlin.noise(nx * 2.5, ny * 2.5, t * 0.08);
+                value = (value + 1) / 2;
+                imageData1.data[(y * lw + x) * 4 + 0] = 120 + value * 120;
+                imageData1.data[(y * lw + x) * 4 + 1] = value * 30;
+                imageData1.data[(y * lw + x) * 4 + 2] = value * 40;
+                imageData1.data[(y * lw + x) * 4 + 3] = 90 + value * 60;
+            }
+        }
+        tempCtx1.putImageData(imageData1, 0, 0);
+
+        // Layer 2 (parallax, different speed/scale)
+        const imageData2 = tempCtx2.createImageData(lw, lh);
+        for (let y = 0; y < lh; y++) {
+            for (let x = 0; x < lw; x++) {
+                let nx = x / lw, ny = y / lh;
+                let value = Perlin.noise(nx * 3.5 + 100, ny * 3.5 + 100, t * 0.12);
+                value = (value + 1) / 2;
+                imageData2.data[(y * lw + x) * 4 + 0] = 180 + value * 60;
+                imageData2.data[(y * lw + x) * 4 + 1] = value * 20;
+                imageData2.data[(y * lw + x) * 4 + 2] = value * 30;
+                imageData2.data[(y * lw + x) * 4 + 3] = 60 + value * 40;
+            }
+        }
+        tempCtx2.putImageData(imageData2, 0, 0);
+
+        // Draw and blur layers onto main canvas
+        ctx.clearRect(0, 0, w, h);
+        ctx.save();
+        ctx.filter = 'blur(16px)';
+        ctx.globalAlpha = 0.7;
+        ctx.drawImage(tempCanvas1, 0, 0, w, h);
+        ctx.globalAlpha = 0.5;
+        ctx.drawImage(tempCanvas2, 0, 0, w, h);
+        ctx.restore();
+    }
+
+    function loop(t) {
+        drawSmoke((t || 0) / 1000);
+        requestAnimationFrame(loop);
+    }
+
+    loop();
+}
+
+window.addEventListener('DOMContentLoaded', animateSmoke);
+window.addEventListener('resize', animateSmoke); 
