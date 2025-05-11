@@ -1,16 +1,18 @@
 // main.js
+import { SmokeParticleSystem } from './js/smoke-particles.js';
+
 let scene, camera, renderer, controls;
+let smokeSystem;
+
+import scrollManager from './js/scrollManager.js';
+import { setBoxTrackballControl } from './js/three-animation.js';
 
 class SceneSetup {
     constructor() {
         this.initScene();
         this.setupLights();
-        this.createRoom();
-        this.createMysteryBox();
-        this.createGamingSetup();
         this.setupControls();
         this.setupResize();
-        this.setupUI();
         this.animate();
     }
 
@@ -30,6 +32,9 @@ class SceneSetup {
         document.body.appendChild(renderer.domElement);
 
         camera.position.set(0, 2, 5);
+
+        // Initialize smoke particle system
+        smokeSystem = new SmokeParticleSystem(scene);
     }
 
     setupLights() {
@@ -46,251 +51,6 @@ class SceneSetup {
         mainLight.distance = 50;
         mainLight.castShadow = true;
         scene.add(mainLight);
-
-        // Neon lights
-        const neonLight1 = new THREE.PointLight(0xff3366, 3, 10);
-        neonLight1.position.set(0, 3, -1);
-        scene.add(neonLight1);
-
-        const neonLight2 = new THREE.PointLight(0xff3366, 5, 8);
-        neonLight2.position.set(-3, 1, 0);
-        scene.add(neonLight2);
-
-        // RGB keyboard light
-        const keyboardLight = new THREE.PointLight(0x00ff00, 2, 5);
-        keyboardLight.position.set(3, 0.7, 0);
-        scene.add(keyboardLight);
-
-        // Animate RGB light
-        gsap.to(keyboardLight.color, {
-            duration: 3,
-            r: 1,
-            g: 0,
-            b: 0,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-        });
-    }
-
-    createRoom() {
-        // Floor with grid
-        const floorGeometry = new THREE.PlaneGeometry(40, 40, 40, 40);
-        const floorMaterial = new THREE.MeshStandardMaterial({
-            color: 0x111111,
-            metalness: 0.5,
-            roughness: 0.8,
-            wireframe: true
-        });
-        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -0.5;
-        scene.add(floor);
-
-        // Solid floor beneath
-        const solidFloor = new THREE.Mesh(
-            new THREE.PlaneGeometry(40, 40),
-            new THREE.MeshStandardMaterial({
-                color: 0x0a0a0a,
-                metalness: 0.3,
-                roughness: 0.8
-            })
-        );
-        solidFloor.rotation.x = -Math.PI / 2;
-        solidFloor.position.y = -0.51;
-        solidFloor.receiveShadow = true;
-        scene.add(solidFloor);
-
-        // Back wall
-        const wallGeometry = new THREE.PlaneGeometry(40, 20);
-        const wallMaterial = new THREE.MeshStandardMaterial({
-            color: 0x0a0a0a,
-            metalness: 0.2,
-            roughness: 0.8
-        });
-        const backWall = new THREE.Mesh(wallGeometry, wallMaterial);
-        backWall.position.z = -10;
-        backWall.position.y = 9;
-        backWall.receiveShadow = true;
-        scene.add(backWall);
-    }
-
-    createMysteryBox() {
-        // Platform with glowing ring
-        const ringGeometry = new THREE.TorusGeometry(0.8, 0.05, 16, 100);
-        const ringMaterial = new THREE.MeshStandardMaterial({
-            color: 0xff3366,
-            emissive: 0xff3366,
-            emissiveIntensity: 1,
-            metalness: 0.7,
-            roughness: 0.3
-        });
-        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-        ring.position.set(-3, 0, 0);
-        ring.rotation.x = Math.PI / 2;
-        scene.add(ring);
-
-        // Pedestal
-        const pedestal = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.5, 0.7, 0.5, 32),
-            new THREE.MeshStandardMaterial({ 
-                color: 0x222222,
-                metalness: 0.5,
-                roughness: 0.5
-            })
-        );
-        pedestal.position.set(-3, 0.5, 0);
-        pedestal.castShadow = true;
-        pedestal.receiveShadow = true;
-        scene.add(pedestal);
-
-        // Box
-        const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-        const boxMaterial = new THREE.MeshStandardMaterial({
-            color: 0xcc1133,
-            emissive: 0xff3366,
-            emissiveIntensity: 1,
-            metalness: 0.5,
-            roughness: 0.4
-        });
-
-        const box = new THREE.Mesh(boxGeometry, boxMaterial);
-        box.position.set(-3, 1.25, 0);
-        box.castShadow = true;
-        scene.add(box);
-
-        // Box animations
-        gsap.to(box.rotation, {
-            duration: 8,
-            y: Math.PI * 2,
-            repeat: -1,
-            ease: 'none'
-        });
-
-        gsap.to(box.position, {
-            duration: 2,
-            y: 1.35,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-        });
-
-        gsap.to(boxMaterial, {
-            duration: 2,
-            emissiveIntensity: 2,
-            repeat: -1,
-            yoyo: true,
-            ease: 'power1.inOut'
-        });
-
-        // Glow effect
-        const glowGeometry = new THREE.SphereGeometry(1.2, 32, 32);
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: 0xff3366,
-            transparent: true,
-            opacity: 0.2
-        });
-        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-        glow.position.set(-3, 1.25, 0);
-        scene.add(glow);
-
-        gsap.to(glowMaterial, {
-            duration: 2,
-            opacity: 0.4,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-        });
-
-        // Ring animation
-        gsap.to(ring.rotation, {
-            duration: 8,
-            z: Math.PI * 2,
-            repeat: -1,
-            ease: 'none'
-        });
-
-        gsap.to(ringMaterial, {
-            duration: 1.5,
-            emissiveIntensity: 2,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-        });
-    }
-
-    createGamingSetup() {
-        // Desk
-        const desk = new THREE.Mesh(
-            new THREE.BoxGeometry(4, 0.2, 2),
-            new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.3 })
-        );
-        desk.position.set(3, 0.5, 0);
-        desk.castShadow = true;
-        desk.receiveShadow = true;
-        scene.add(desk);
-
-        // Monitor
-        const monitor = new THREE.Mesh(
-            new THREE.BoxGeometry(1.5, 1, 0.1),
-            new THREE.MeshStandardMaterial({ 
-                color: 0x000000,
-                emissive: 0x00ff00,
-                emissiveIntensity: 0.5
-            })
-        );
-        monitor.position.set(3, 1.3, 0);
-        monitor.castShadow = true;
-        scene.add(monitor);
-
-        // Monitor stand
-        const stand = new THREE.Mesh(
-            new THREE.BoxGeometry(0.2, 0.3, 0.2),
-            new THREE.MeshStandardMaterial({ color: 0x333333 })
-        );
-        stand.position.set(3, 0.8, 0);
-        stand.castShadow = true;
-        scene.add(stand);
-
-        // Keyboard with RGB effect
-        const keyboard = new THREE.Mesh(
-            new THREE.BoxGeometry(1.2, 0.1, 0.4),
-            new THREE.MeshStandardMaterial({ 
-                color: 0x111111,
-                emissive: 0x00ff00,
-                emissiveIntensity: 0.2
-            })
-        );
-        keyboard.position.set(3, 0.7, 0);
-        keyboard.castShadow = true;
-        scene.add(keyboard);
-
-        // Mouse with RGB
-        const mouse = new THREE.Mesh(
-            new THREE.BoxGeometry(0.2, 0.1, 0.3),
-            new THREE.MeshStandardMaterial({ 
-                color: 0x111111,
-                emissive: 0xff0000,
-                emissiveIntensity: 0.2
-            })
-        );
-        mouse.position.set(3.8, 0.7, 0);
-        mouse.castShadow = true;
-        scene.add(mouse);
-
-        // Headset
-        const headset = new THREE.Mesh(
-            new THREE.TorusGeometry(0.2, 0.05, 16, 32),
-            new THREE.MeshStandardMaterial({ 
-                color: 0x222222,
-                emissive: 0xff3366,
-                emissiveIntensity: 0.2
-            })
-        );
-        headset.position.set(4, 1.3, 0);
-        headset.rotation.x = Math.PI / 2;
-        headset.castShadow = true;
-        scene.add(headset);
     }
 
     setupControls() {
@@ -302,9 +62,6 @@ class SceneSetup {
         controls.maxPolarAngle = Math.PI / 2;
         controls.autoRotate = true;
         controls.autoRotateSpeed = 0.5;
-
-        // Disable controls initially
-        controls.enabled = false;
     }
 
     setupResize() {
@@ -315,95 +72,13 @@ class SceneSetup {
         });
     }
 
-    setupUI() {
-        // Show loading text
-        const loading = document.querySelector('.loading');
-        if (loading) loading.classList.add('visible');
-
-        // Animate letters
-        const letters = document.querySelectorAll('.letter');
-        const subtitle = document.querySelector('.subtitle');
-        const info = document.querySelector('.info');
-        const cta = document.querySelector('.cta-button');
-
-        // Initial camera position
-        camera.position.set(0, 2, 8);
-
-        // Timeline for intro animation
-        const tl = gsap.timeline({ delay: 1 });
-
-        // Fade out loading
-        if (loading) {
-            tl.to(loading, {
-                opacity: 0,
-                duration: 0.5,
-                onComplete: () => loading.style.display = 'none'
-            });
-        }
-
-        // Animate letters
-        if (letters && letters.length > 0) {
-            letters.forEach((letter, index) => {
-                tl.to(letter, {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.8,
-                    ease: 'power3.out'
-                }, 0.2 + index * 0.1);
-            });
-        }
-
-        // Animate subtitle
-        if (subtitle) {
-            tl.to(subtitle, {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: 'power3.out'
-            }, 0.5);
-        }
-
-        // Animate info section
-        if (info) {
-            tl.to(info, {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: 'power3.out'
-            }, 0.8);
-        }
-
-        // Animate CTA button
-        if (cta) {
-            tl.to(cta, {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: 'power3.out'
-            }, 1);
-        }
-
-        // Camera movement
-        tl.to(camera.position, {
-            x: 0,
-            y: 2,
-            z: 5,
-            duration: 2,
-            ease: 'power2.inOut',
-            onComplete: () => {
-                controls.enabled = true;
-            }
-        }, 0.5);
-    }
-
     animate() {
         requestAnimationFrame(this.animate.bind(this));
         controls.update();
         
-        // Subtle camera movement when controls are disabled
-        if (!controls.enabled) {
-            camera.position.x = Math.sin(Date.now() * 0.0005) * 0.5;
-            camera.position.z = 5 + Math.cos(Date.now() * 0.0005) * 0.2;
+        // Update smoke particles
+        if (smokeSystem) {
+            smokeSystem.update(Date.now() * 0.001);
         }
         
         renderer.render(scene, camera);
@@ -490,9 +165,9 @@ function animateSmoke() {
     canvas.width = w;
     canvas.height = h;
 
-    // Render at lower resolution for softness
-    const lw = Math.floor(w / 3);
-    const lh = Math.floor(h / 3);
+    // Render at higher resolution for better detail
+    const lw = Math.floor(w / 2);
+    const lh = Math.floor(h / 2);
     const tempCanvas1 = document.createElement('canvas');
     tempCanvas1.width = lw;
     tempCanvas1.height = lh;
@@ -501,46 +176,122 @@ function animateSmoke() {
     tempCanvas2.width = lw;
     tempCanvas2.height = lh;
     const tempCtx2 = tempCanvas2.getContext('2d');
+    const tempCanvas3 = document.createElement('canvas');
+    tempCanvas3.width = lw;
+    tempCanvas3.height = lh;
+    const tempCtx3 = tempCanvas3.getContext('2d');
 
     function drawSmoke(t) {
-        // Layer 1
+        // Base layer - slow moving, large scale
         const imageData1 = tempCtx1.createImageData(lw, lh);
         for (let y = 0; y < lh; y++) {
             for (let x = 0; x < lw; x++) {
                 let nx = x / lw, ny = y / lh;
-                let value = Perlin.noise(nx * 2.5, ny * 2.5, t * 0.08);
+                // Add elliptical distortion
+                let dx = (nx - 0.5) * 2;
+                let dy = (ny - 0.5) * 2;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                let angle = Math.atan2(dy, dx);
+                
+                // Create elliptical flow
+                let flowX = Math.cos(angle) * dist * 0.5;
+                let flowY = Math.sin(angle) * dist * 0.8;
+                
+                let value = Perlin.noise(
+                    nx * 1.5 + flowX + t * 0.05,
+                    ny * 1.5 + flowY + t * 0.05,
+                    t * 0.1
+                );
                 value = (value + 1) / 2;
-                imageData1.data[(y * lw + x) * 4 + 0] = 120 + value * 120;
-                imageData1.data[(y * lw + x) * 4 + 1] = value * 30;
-                imageData1.data[(y * lw + x) * 4 + 2] = value * 40;
-                imageData1.data[(y * lw + x) * 4 + 3] = 90 + value * 60;
+                
+                // Add depth with distance
+                value *= (1 - dist * 0.5);
+                
+                imageData1.data[(y * lw + x) * 4 + 0] = 100 + value * 100;  // Red
+                imageData1.data[(y * lw + x) * 4 + 1] = value * 20;         // Green
+                imageData1.data[(y * lw + x) * 4 + 2] = value * 30;         // Blue
+                imageData1.data[(y * lw + x) * 4 + 3] = 80 + value * 70;    // Alpha
             }
         }
         tempCtx1.putImageData(imageData1, 0, 0);
 
-        // Layer 2 (parallax, different speed/scale)
+        // Middle layer - medium scale detail
         const imageData2 = tempCtx2.createImageData(lw, lh);
         for (let y = 0; y < lh; y++) {
             for (let x = 0; x < lw; x++) {
                 let nx = x / lw, ny = y / lh;
-                let value = Perlin.noise(nx * 3.5 + 100, ny * 3.5 + 100, t * 0.12);
+                let dx = (nx - 0.5) * 2;
+                let dy = (ny - 0.5) * 2;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                let angle = Math.atan2(dy, dx);
+                
+                let flowX = Math.cos(angle) * dist * 0.3;
+                let flowY = Math.sin(angle) * dist * 0.6;
+                
+                let value = Perlin.noise(
+                    nx * 3.0 + flowX + t * 0.08,
+                    ny * 3.0 + flowY + t * 0.08,
+                    t * 0.15
+                );
                 value = (value + 1) / 2;
-                imageData2.data[(y * lw + x) * 4 + 0] = 180 + value * 60;
-                imageData2.data[(y * lw + x) * 4 + 1] = value * 20;
-                imageData2.data[(y * lw + x) * 4 + 2] = value * 30;
-                imageData2.data[(y * lw + x) * 4 + 3] = 60 + value * 40;
+                value *= (1 - dist * 0.3);
+                
+                imageData2.data[(y * lw + x) * 4 + 0] = 140 + value * 80;   // Red
+                imageData2.data[(y * lw + x) * 4 + 1] = value * 15;         // Green
+                imageData2.data[(y * lw + x) * 4 + 2] = value * 25;         // Blue
+                imageData2.data[(y * lw + x) * 4 + 3] = 60 + value * 40;    // Alpha
             }
         }
         tempCtx2.putImageData(imageData2, 0, 0);
 
-        // Draw and blur layers onto main canvas
+        // Detail layer - small scale wisps
+        const imageData3 = tempCtx3.createImageData(lw, lh);
+        for (let y = 0; y < lh; y++) {
+            for (let x = 0; x < lw; x++) {
+                let nx = x / lw, ny = y / lh;
+                let dx = (nx - 0.5) * 2;
+                let dy = (ny - 0.5) * 2;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                let angle = Math.atan2(dy, dx);
+                
+                let flowX = Math.cos(angle) * dist * 0.2;
+                let flowY = Math.sin(angle) * dist * 0.4;
+                
+                let value = Perlin.noise(
+                    nx * 5.0 + flowX + t * 0.12,
+                    ny * 5.0 + flowY + t * 0.12,
+                    t * 0.2
+                );
+                value = (value + 1) / 2;
+                value *= (1 - dist * 0.2);
+                
+                imageData3.data[(y * lw + x) * 4 + 0] = 160 + value * 60;   // Red
+                imageData3.data[(y * lw + x) * 4 + 1] = value * 10;         // Green
+                imageData3.data[(y * lw + x) * 4 + 2] = value * 20;         // Blue
+                imageData3.data[(y * lw + x) * 4 + 3] = 40 + value * 30;    // Alpha
+            }
+        }
+        tempCtx3.putImageData(imageData3, 0, 0);
+
+        // Draw and blend layers onto main canvas
         ctx.clearRect(0, 0, w, h);
         ctx.save();
-        ctx.filter = 'blur(16px)';
-        ctx.globalAlpha = 0.7;
+        
+        // Base layer
+        ctx.filter = 'blur(12px)';
+        ctx.globalAlpha = 0.8;
         ctx.drawImage(tempCanvas1, 0, 0, w, h);
-        ctx.globalAlpha = 0.5;
+        
+        // Middle layer
+        ctx.filter = 'blur(8px)';
+        ctx.globalAlpha = 0.6;
         ctx.drawImage(tempCanvas2, 0, 0, w, h);
+        
+        // Detail layer
+        ctx.filter = 'blur(4px)';
+        ctx.globalAlpha = 0.4;
+        ctx.drawImage(tempCanvas3, 0, 0, w, h);
+        
         ctx.restore();
     }
 
@@ -553,4 +304,68 @@ function animateSmoke() {
 }
 
 window.addEventListener('DOMContentLoaded', animateSmoke);
-window.addEventListener('resize', animateSmoke); 
+window.addEventListener('resize', animateSmoke);
+
+const trackballUI = document.getElementById('trackball-ui');
+let isDragging = false;
+let lastX = 0, lastY = 0;
+
+// Show/hide the trackball UI based on scroll progress
+scrollManager.addListener(progress => {
+    if (progress >= 1) {
+        trackballUI.classList.add('visible');
+    } else {
+        trackballUI.classList.remove('visible');
+        setBoxTrackballControl(null); // Reset control when UI is hidden
+    }
+});
+
+// Trackball drag logic
+trackballUI.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    document.body.style.userSelect = 'none';
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    setBoxTrackballControl({ dx, dy });
+});
+
+document.addEventListener('mouseup', () => {
+    if (isDragging) {
+        isDragging = false;
+        document.body.style.userSelect = '';
+        setBoxTrackballControl(null); // Optionally stop control on mouse up
+    }
+});
+
+// Touch support
+trackballUI.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    const touch = e.touches[0];
+    lastX = touch.clientX;
+    lastY = touch.clientY;
+}, { passive: false });
+
+document.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - lastX;
+    const dy = touch.clientY - lastY;
+    lastX = touch.clientX;
+    lastY = touch.clientY;
+    setBoxTrackballControl({ dx, dy });
+}, { passive: false });
+
+document.addEventListener('touchend', () => {
+    if (isDragging) {
+        isDragging = false;
+        setBoxTrackballControl(null);
+    }
+}); 

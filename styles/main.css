@@ -16,27 +16,6 @@ body {
     background: radial-gradient(ellipse at 50% 0%, #b80000 0%, #1a0000 60%, #000 100%);
     overflow-x: hidden; /* Allow vertical scrolling only */
     position: relative;
-   
-}
-
-body::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.25;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="200" height="200" filter="url(%23noise)"/></svg>'); 
-    background-repeat: repeat; 
-    animation: noise-move 2s linear infinite;
-}
-
-@keyframes noise-move {
-    0% { background-position: 0 0; }
-    100% { background-position: 100px 100px; }
 }
 
 /* Canvas container for Three.js */
@@ -49,55 +28,71 @@ body::after {
     z-index: 1;
 }
 
-/* Main content layout */
-.content {
-    position: absolute;
+/* Header styles */
+.header {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    padding: 2rem;
+    z-index: 2;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    pointer-events: none;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 }
 
 /* Title styles */
 .title {
-    font-size: 8vw;
+    font-size: clamp(2rem, 3vw, 3rem);
     font-weight: 700;
-    letter-spacing: 0.5em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    margin-left: 0.5em; /* compensates for letter spacing */
-    text-shadow: 0 0 10px rgba(255, 0, 100, 0.5);
-    opacity: 0;
-    transform: translateY(20px);
-    transition: transform 0.5s ease, opacity 0.5s ease;
-    will-change: transform, opacity;
-}
-
-.title.visible {
-    opacity: 1;
-    transform: translateY(0);
+    text-shadow: 0 0 20px rgba(255, 0, 100, 0.5);
+    background: linear-gradient(45deg, #ff0064, #ff4d4d);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0;
 }
 
 /* Subtitle styles */
 .subtitle {
-    font-size: 1.2vw;
-    letter-spacing: 0.3em;
+    font-size: clamp(0.8rem, 1vw, 1rem);
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    margin-top: 2em;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: transform 0.5s ease 0.2s, opacity 0.5s ease 0.2s;
-    will-change: transform, opacity;
     color: rgba(255, 255, 255, 0.7);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    margin: 0;
 }
 
-.subtitle.visible {
-    opacity: 1;
-    transform: translateY(0);
+/* Navigation styles */
+.nav {
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+}
+
+.nav-item {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: clamp(0.8rem, 0.9vw, 1rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    padding: 0.5em 1em;
+    border: 1px solid transparent;
+}
+
+.nav-item:hover {
+    color: #ff0064;
+    border-color: #ff0064;
+    box-shadow: 0 0 20px rgba(255, 0, 100, 0.3);
 }
 
 /* Glitch effect styles */
@@ -137,67 +132,93 @@ body::after {
     100% { transform: translate(0); }
 }
 
-/* Navigation styles */
-.nav {
-    position: fixed;
-    bottom: 3em;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: 2em;
-    opacity: 0;
-    transition: opacity 1s ease 0.8s;
-}
-
-.nav.visible {
-    opacity: 1;
-}
-
-.nav-item {
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    font-size: 0.9em;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    pointer-events: auto;
-    transition: color 0.3s ease;
-    position: relative;
-}
-
-.nav-item:hover {
-    color: rgba(255, 0, 100, 0.9);
-}
-
-.nav-item::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: rgba(255, 0, 100, 0.9);
-    transition: width 0.3s ease;
-}
-
-.nav-item:hover::after {
-    width: 100%;
-}
-
 /* Responsive styles */
 @media (max-width: 768px) {
-    .title {
-        font-size: 12vw;
-        letter-spacing: 0.3em;
+    .header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
     }
 
-    .subtitle {
-        font-size: 3vw;
-        letter-spacing: 0.2em;
+    .header-content {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
     }
 
     .nav {
-        flex-direction: column;
-        align-items: center;
-        gap: 1em;
+        width: 100%;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .nav-item {
+        padding: 0.3em 0.6em;
+    }
+
+    .logo {
+        height: 40px;
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+}
+
+.logo {
+    height: 60px;
+    width: auto;
+    display: block;
+    margin-right: 1.5rem;
+}
+
+.trackball-ui {
+    position: fixed;
+    bottom: 2.5rem;
+    right: 2.5rem;
+    width: 120px;
+    height: 120px;
+    background: rgba(30, 0, 0, 0.7);
+    border-radius: 50%;
+    box-shadow: 0 0 32px 8px rgba(255,0,100,0.3), 0 0 0 4px rgba(255,0,100,0.2) inset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    cursor: grab;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.8);
+    transition: opacity 0.4s cubic-bezier(.4,2,.6,1), transform 0.4s cubic-bezier(.4,2,.6,1);
+}
+
+.trackball-ui.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+.trackball-ui:active {
+    cursor: grabbing;
+}
+
+.trackball-text {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 8px #ff0064, 0 0 2px #000;
+    user-select: none;
+    pointer-events: none;
+}
+
+@media (max-width: 600px) {
+    .trackball-ui {
+        width: 80px;
+        height: 80px;
+        bottom: 1.2rem;
+        right: 1.2rem;
+    }
+    .trackball-text {
+        font-size: 0.85rem;
     }
 } 
