@@ -7,25 +7,28 @@
     <!-- External CSS -->
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/sections.css">
+    <link rel="stylesheet" href="styles/section-texts.css">
 </head>
 <body>
+    <!-- Section-based Background Texts -->
+    <div class="background-texts">
+        <div class="background-text section-text" id="bg-section-1">Unbox the Mystery</div>
+        <div class="background-text section-text" id="bg-section-2">Limited edition creator drops</div>
+        <div class="background-text section-text" id="bg-section-3"> Exclusive collectibles</div>
+        <div class="background-text section-text" id="bg-section-4">Unleash your inner collector</div>
+
+
+    </div>
+   
     <!-- 3D Canvas Container -->
     <div id="canvas-container"></div>
-    
+    <!-- Section-based Foreground Texts -->
+    <div class="foreground-texts">
+        <div class="foreground-text section-text" id="fg-section-1">THEY CALL ME GIULIO.</div>
+       
+    </div>
     <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <h1 class="title glitch-effect" data-text="PIL GAMING">PIL GAMING</h1>
-            <p class="subtitle">Esports Excellence</p>
-        </div>
-        
-        <!-- Navigation -->
-        <nav class="nav">
-            <a href="#" class="nav-item">Work</a>
-            <a href="#" class="nav-item">About</a>
-            <a href="#" class="nav-item">Contact</a>
-        </nav>
-    </header>
+   
 
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -35,8 +38,8 @@
     <!-- Custom JavaScript -->
     <script type="module" src="js/scrollManager.js"></script>
     <script type="module" src="js/animated-bg.js"></script>
-    <script type="module" src="js/smoke-particles.js"></script>
     <script type="module" src="js/three-animation.js"></script>
+    <script type="module" src="js/section-texts.js"></script>
     <script type="module" src="main.js"></script>
 
     <!-- Trackball UI (hidden by default) -->

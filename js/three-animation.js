@@ -24,9 +24,14 @@ let lastTrackballTime = 0;
 // Handle UI animations
 function initializeUIAnimations() {
     setTimeout(() => {
-        document.querySelector('.title').classList.add('visible');
-        document.querySelector('.subtitle').classList.add('visible');
-        document.querySelector('.nav').classList.add('visible');
+        const title = document.querySelector('.title');
+        if (title) title.classList.add('visible');
+
+        const subtitle = document.querySelector('.subtitle');
+        if (subtitle) subtitle.classList.add('visible');
+
+        const nav = document.querySelector('.nav');
+        if (nav) nav.classList.add('visible');
     }, 500);
 }
 

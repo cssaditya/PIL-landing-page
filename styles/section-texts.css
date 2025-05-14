@@ -1,0 +1,53 @@
+.background-texts, .foreground-texts {
+    position: fixed;
+    width: 100%;
+    height: auto;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 3;
+  }
+  
+  .background-text {
+    position: fixed;
+    top: 40%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    font-size: 20vh;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(248, 239, 239, 0.755);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    user-select: none;
+    opacity: 0;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    z-index: 1;
+    font-family: 'Arial', sans-serif;
+    text-transform: uppercase;
+  }
+  
+
+  .foreground-text {
+    position: absolute;
+    bottom: 15vh; /* Moved slightly higher to match image positioning */
+    left: 10vw; /* Aligned to left side like "THEY CALL ME GIULIO" */
+    transform: translateX(0); /* Removed centering to match left alignment */
+    font-size: 2.5vw; /* Slightly larger */
+    color: #fff;
+    font-weight: 600; /* Semi-bold */
+    letter-spacing: 0.2em; /* Increased letter spacing to match image */
+    user-select: none;
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    z-index: 3;
+    text-transform: uppercase; /* All caps like in the image */
+  }
+  
+  /* We will control visibility with JS now, keeping this for backwards compatibility */
+  .section-text.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Add dark background to match the image gradient */
+ 
