@@ -30,6 +30,24 @@
     <!-- Header -->
    
 
+    <!-- Registration Form -->
+    <div class="registration-container">
+        <form id="registration-form" class="registration-form">
+            <h2>Pre-register for Mystery Box</h2>
+            <div class="form-group">
+                <input type="text" id="name" name="name" required placeholder="Your Name">
+            </div>
+            <div class="form-group">
+                <input type="email" id="email" name="email" required placeholder="Your Email">
+            </div>
+            <div class="form-group">
+                <input type="tel" id="phone" name="phone" required placeholder="Your Phone Number">
+            </div>
+            <button type="submit" id="submit-registration">Register Now</button>
+            <div id="registration-status" class="registration-status" style="display: none;"></div>
+        </form>
+    </div>
+
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
@@ -41,6 +59,7 @@
     <script type="module" src="js/three-animation.js"></script>
     <script type="module" src="js/section-texts.js"></script>
     <script type="module" src="main.js"></script>
+    <script type="module" src="js/registration-form.js"></script>
 
     <!-- Trackball UI (hidden by default) -->
     <div class="trackball-ui" id="trackball-ui">
